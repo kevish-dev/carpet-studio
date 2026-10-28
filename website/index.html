@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f6f4ef">
+  <meta name="description" content="Carpet Studio is a softer way to clear your Mac desktop. Move a beautiful rug over the clutter, peek beneath it, and restore your space in a moment. Made by Kevish Sewliya.">
+  <meta property="og:title" content="Carpet Studio — Make room for everything">
+  <meta property="og:description" content="A movable carpet for your Mac desktop. Try it in your browser, then download the preview for macOS.">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="/assets/app-icon.png">
+  <title>Carpet Studio — A softer desktop for Mac</title>
+  <link rel="icon" type="image/png" href="/assets/app-icon.png">
+  <link rel="preload" as="image" href="/assets/rug-persian.png">
+  <link rel="stylesheet" href="/styles.css">
+  <script src="/app.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="site-header">
+    <div class="header-inner">
+      <a class="brand" href="#top" aria-label="Carpet Studio home">
+        <img src="/assets/app-icon.png" alt="" width="38" height="38">
+        <span>Carpet Studio</span>
+      </a>
+      <nav class="primary-nav" aria-label="Main navigation">
+        <a href="#play">Try it</a>
+        <a href="#details">The idea</a>
+        <a href="#patterns">Patterns</a>
+      </nav>
+      <a class="header-download" href="#download">Get the app <span aria-hidden="true">↗</span></a>
+    </div>
+  </header>
+
+  <main id="main">
+    <section id="top" class="hero section-wrap">
+      <div class="hero-copy">
+        <p class="eyebrow"><span class="eyebrow-line"></span> MADE FOR THE MAC DESKTOP</p>
+        <h1>A little space<br>to <span class="italic-word">breathe.</span></h1>
+        <p class="hero-description">A beautiful carpet for the things you’re not ready to tidy. Place it over your desktop, lift a corner to peek, and let your space feel like yours again.</p>
+        <div class="hero-actions">
+          <a class="button button-dark" href="#download">Download for Mac <span aria-hidden="true">↗</span></a>
+          <a class="text-link" href="#play">Try it here <span aria-hidden="true">↓</span></a>
+        </div>
+        <p class="hero-quiet">One small app. No account. Your files stay put.</p>
+      </div>
+      <div class="hero-side" aria-hidden="true">
+        <span class="side-rule"></span>
+        <span class="side-caption">001 / THE SOFTER DESKTOP</span>
+        <span class="side-orbit"></span>
+      </div>
+    </section>
+
+    <section id="play" class="demo-section section-wrap" aria-labelledby="demo-heading">
+      <div class="section-heading demo-heading reveal">
+        <div>
+          <p class="eyebrow">INTERACTIVE PREVIEW</p>
+          <h2 id="demo-heading">Go ahead.<br><span class="muted-word">Move things around.</span></h2>
+        </div>
+        <p>Drag the carpet. Lift its corner. Sweep the sample files beneath it. This little desktop is yours to play with.</p>
+      </div>
+
+      <div class="desktop-shell reveal" aria-label="Interactive Carpet Studio browser demo">
+        <div class="desktop-menubar" aria-hidden="true">
+          <div class="menubar-left"><span class="menubar-mark">✦</span><strong>Carpet Studio</strong><span>File</span><span>View</span></div>
+          <div class="menubar-right"><span class="menubar-pill">LIVE DEMO</span><span>09:41</span></div>
+        </div>
+        <div class="desktop-screen" id="desktop-screen">
+          <div class="wallpaper-shape wallpaper-shape-one" aria-hidden="true"></div>
+          <div class="wallpaper-shape wallpaper-shape-two" aria-hidden="true"></div>
+          <div class="desktop-icon" data-icon="0" style="--ix:11%;--iy:19%" aria-hidden="true"><span class="icon-art icon-folder"><span></span></span><span class="icon-label">Projects</span></div>
+          <div class="desktop-icon" data-icon="1" style="--ix:24%;--iy:42%" aria-hidden="true"><span class="icon-art icon-note"><span></span></span><span class="icon-label">Notes.txt</span></div>
+          <div class="desktop-icon" data-icon="2" style="--ix:42%;--iy:24%" aria-hidden="true"><span class="icon-art icon-photo"><span></span></span><span class="icon-label">Weekend.jpg</span></div>
+          <div class="desktop-icon" data-icon="3" style="--ix:58%;--iy:59%" aria-hidden="true"><span class="icon-art icon-folder icon-folder-blue"><span></span></span><span class="icon-label">Ideas</span></div>
+          <div class="desktop-icon" data-icon="4" style="--ix:79%;--iy:19%" aria-hidden="true"><span class="icon-art icon-note icon-note-pink"><span></span></span><span class="icon-label">Draft.pages</span></div>
+          <div class="desktop-icon" data-icon="5" style="--ix:84%;--iy:66%" aria-hidden="true"><span class="icon-art icon-photo icon-photo-blue"><span></span></span><span class="icon-label">Frame.png</span></div>
+
+          <div class="demo-rug" id="demo-rug" tabindex="0" role="button" aria-keyshortcuts="ArrowUp ArrowDown ArrowLeft ArrowRight Enter Space" aria-label="Carpet. Drag to move. Use arrow keys to move, or Shift and arrow keys to resize.">
+            <div class="rug-face" id="rug-face"><img id="rug-image" src="/assets/rug-persian.png" alt="" draggable="false"></div>
+            <div class="rug-fold" aria-hidden="true"></div>
+            <span class="rug-grip rug-grip-peek" aria-hidden="true"></span>
+            <span class="rug-grip rug-grip-resize" aria-hidden="true"></span>
+          </div>
+          <div class="demo-dock" aria-hidden="true"><span class="dock-dot dock-sand"></span><span class="dock-dot dock-sky"></span><span class="dock-dot dock-wine"></span><span class="dock-divider"></span><span class="dock-dot dock-white"></span></div>
+          <span class="desktop-hint" id="desktop-hint">DRAG THE RUG</span>
+        </div>
+      </div>
+
+      <div class="demo-toolbar reveal" aria-label="Demo controls">
+        <div class="demo-styles" role="group" aria-label="Choose carpet design">
+          <span class="toolbar-label">DESIGN</span>
+          <button type="button" class="style-swatch active" data-style="persian" aria-label="Persian design" aria-pressed="true" style="--swatch:url('/assets/rug-persian.png')"></button>
+          <button type="button" class="style-swatch" data-style="kilim" aria-label="Kilim design" aria-pressed="false" style="--swatch:url('/assets/rug-kilim.png')"></button>
+          <button type="button" class="style-swatch" data-style="woven-grid" aria-label="Woven Grid design" aria-pressed="false" style="--swatch:url('/assets/rug-woven-grid.png')"></button>
+          <button type="button" class="style-swatch" data-style="midnight" aria-label="Midnight design" aria-pressed="false" style="--swatch:url('/assets/rug-midnight.png')"></button>
+        </div>
+        <span class="toolbar-divider" aria-hidden="true"></span>
+        <div class="demo-actions">
+          <button type="button" class="tool-button" id="peek-button" aria-pressed="false"><span class="tool-icon" aria-hidden="true">◪</span> Lift corner</button>
+          <button type="button" class="tool-button" id="sweep-button" aria-pressed="false"><span class="tool-icon" aria-hidden="true">↘</span> Sweep icons</button>
+          <button type="button" class="tool-button tool-reset" id="reset-button"><span class="tool-icon" aria-hidden="true">↺</span> Reset</button>
+        </div>
+      </div>
+      <p class="demo-status" id="demo-status" role="status" aria-live="polite">A browser preview of how Carpet Studio feels. Your actual files are untouched.</p>
+    </section>
+
+    <section id="details" class="story-section section-wrap">
+      <div class="story-index reveal">01 <span></span> THE IDEA</div>
+      <div class="story-content reveal">
+        <h2>Your desktop,<br><span class="muted-word">with a softer edge.</span></h2>
+        <div class="story-bottom">
+          <p>Some days the desktop is a workspace. Other days it’s a pile of almost-finished thoughts. Carpet Studio gives the pile a place to rest.</p>
+          <div class="story-lines" aria-label="How it works">
+            <div><span>01</span><strong>Place it anywhere</strong><p>Move and resize the carpet to fit your desktop.</p></div>
+            <div><span>02</span><strong>Peek when you need to</strong><p>Lift a corner and see what’s underneath.</p></div>
+            <div><span>03</span><strong>Gather, then restore</strong><p>Optionally bring icons together and return them to their saved positions.</p></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="patterns" class="patterns-section">
+      <div class="section-wrap">
+        <div class="patterns-heading reveal">
+          <div><p class="eyebrow">MAKE IT YOURS</p><h2>A little character.<br><span class="muted-word">A lot of calm.</span></h2></div>
+          <p>Four starting designs, with room for your own image. Choose the one that feels at home on your screen.</p>
+        </div>
+        <div class="pattern-gallery reveal">
+          <button type="button" class="pattern-card" data-gallery-style="persian"><span class="pattern-image"><img src="/assets/rug-persian.png" alt="Persian carpet design" loading="lazy"></span><span class="pattern-meta"><strong>Persian</strong><span>01 / 04</span></span></button>
+          <button type="button" class="pattern-card" data-gallery-style="kilim"><span class="pattern-image"><img src="/assets/rug-kilim.png" alt="Kilim carpet design" loading="lazy"></span><span class="pattern-meta"><strong>Kilim</strong><span>02 / 04</span></span></button>
+          <button type="button" class="pattern-card" data-gallery-style="woven-grid"><span class="pattern-image"><img src="/assets/rug-woven-grid.png" alt="Woven Grid carpet design" loading="lazy"></span><span class="pattern-meta"><strong>Woven Grid</strong><span>03 / 04</span></span></button>
+          <button type="button" class="pattern-card" data-gallery-style="midnight"><span class="pattern-image"><img src="/assets/rug-midnight.png" alt="Midnight carpet design" loading="lazy"></span><span class="pattern-meta"><strong>Midnight</strong><span>04 / 04</span></span></button>
+        </div>
+        <p class="pattern-footnote">In the Mac app, you can also import your own rug image.</p>
+      </div>
+    </section>
+
+    <section class="privacy-section section-wrap">
+      <div class="privacy-visual reveal" aria-hidden="true"><div class="privacy-ring privacy-ring-a"></div><div class="privacy-ring privacy-ring-b"></div><div class="privacy-core"><span>⌂</span></div><span class="privacy-label privacy-label-top">ON YOUR DESKTOP</span><span class="privacy-label privacy-label-bottom">IN YOUR CONTROL</span></div>
+      <div class="privacy-copy reveal"><p class="eyebrow">A LIGHT TOUCH</p><h2>The mess stays.<br><span class="muted-word">The stress can go.</span></h2><p>Covering is purely visual. Your files stay right where you left them on disk. If you choose to gather icons, Carpet Studio saves their positions first so you can put them back.</p><div class="privacy-facts"><span>No account</span><span>No file uploads</span><span>Finder permission only for Gather & Restore</span></div></div>
+    </section>
+
+    <section id="download" class="download-section">
+      <div class="section-wrap download-inner">
+        <p class="eyebrow">TAKE THE CALM WITH YOU</p>
+        <h2>Give your desktop<br>a place to <span class="italic-word">rest.</span></h2>
+        <p class="download-description">A tiny change to the space you see every day.</p>
+        <a class="button button-light" href="/downloads/Carpet-Studio-0.2.0-preview.dmg" download>Download preview for Mac <span aria-hidden="true">↗</span></a>
+        <div class="download-meta"><span>Version 0.2.0 preview</span><span>macOS 12 or later</span><span>Apple silicon & Intel</span></div>
+        <p class="download-note">This is a development preview. It is not Developer ID signed or notarized, so macOS Gatekeeper may block it on other Macs.</p>
+        <div class="download-art" aria-hidden="true"><img src="/assets/rug-persian.png" alt="" loading="lazy"></div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer section-wrap">
+    <a class="brand footer-brand" href="#top"><img src="/assets/app-icon.png" alt="" width="34" height="34"><span>Carpet Studio</span></a>
+    <p>Made by <strong>Kevish Sewliya</strong>.</p>
+    <a href="#top">Back to top ↑</a>
+  </footer>
+</body>
+</html>

@@ -2,6 +2,8 @@
 
 A first-build macOS menu bar app that places a movable carpet over Finder's desktop icons. Files remain where they are on disk.
 
+Website: https://carpet-studio-kevish.sacredsun4096.chatgpt.site (source in `website/`). The site currently offers the development preview DMG and an interactive browser demo.
+
 ## Build and run
 
 Requires Xcode Command Line Tools or Xcode.
