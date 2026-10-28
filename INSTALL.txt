@@ -1,0 +1,15 @@
+CARPET STUDIO — INSTALLATION
+
+1. Open the disk image.
+2. Drag Carpet Studio.app to the Applications shortcut.
+3. Eject the disk image, then open Carpet Studio from Applications.
+4. Look for its rug icon in the menu bar. The first-run guide explains the controls.
+
+The carpet covers desktop icons without moving files. Covering needs no special permission.
+If you choose Gather Icons or Restore Icon Positions, macOS asks whether Carpet Studio may
+control Finder. Allow Finder Automation for those commands. You can change this later in
+System Settings > Privacy & Security > Automation.
+
+Before Gather Icons, turn off Finder's Use Stacks and choose Sort By > None on the desktop.
+Carpet Studio saves icon positions before gathering and restores them from its menu or
+when you quit normally.
