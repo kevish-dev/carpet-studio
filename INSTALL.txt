@@ -13,3 +13,11 @@ System Settings > Privacy & Security > Automation.
 Before Gather Icons, turn off Finder's Use Stacks and choose Sort By > None on the desktop.
 Carpet Studio saves icon positions before gathering and restores them from its menu or
 when you quit normally.
+
+MOTION PREVIEW 0.3.0
+Pull the upper-right corner inward to lift the fabric. Release it to let it settle.
+Space or Return holds the corner open when the rug has keyboard focus.
+Drag the body to move; drag the lower-right corner to resize.
+The app respects macOS Reduce Motion.
+
+This preview is ad-hoc signed, not Developer ID signed or notarized.

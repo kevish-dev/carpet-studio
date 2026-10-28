@@ -14,7 +14,7 @@ open "build/Carpet Studio.app"
 ./test.sh
 ```
 
-The app appears in the menu bar. Drag the carpet body to move it, its lower-right corner to resize it, and its upper-right corner inward to peek beneath it. Use the menu to choose a style, import an image, adjust opacity, or gather and restore icons.
+The app appears in the menu bar. Drag the carpet body to move it, its lower-right corner to resize it, and its upper-right corner inward to peek beneath it. Release the corner to let the fabric settle, or press Space/Return while the rug has focus to hold it open. The curved mesh has a woven backing, bound edges, and moving fringe. Use the menu to choose a style, import an image, adjust opacity, or gather and restore icons.
 
 Gather Icons changes Finder's desktop icon positions, saves their prior positions to Application Support first, and restores them when you choose Restore or quit normally. macOS may request permission to control Finder. Turn off Finder's Use Stacks and set Sort By to None before gathering.
 

@@ -1,3 +1,6 @@
+import { Spring, clamp, sampleCloth } from './cloth-physics.mjs';
+import { ClothRenderer } from './cloth-renderer.mjs';
+
 const screen = document.querySelector('#desktop-screen');
 const rug = document.querySelector('#demo-rug');
 const rugImage = document.querySelector('#rug-image');
@@ -5,225 +8,228 @@ const status = document.querySelector('#demo-status');
 const peekButton = document.querySelector('#peek-button');
 const sweepButton = document.querySelector('#sweep-button');
 const resetButton = document.querySelector('#reset-button');
+const grip = document.querySelector('.rug-grip-peek');
 const swatches = [...document.querySelectorAll('.style-swatch')];
 const galleryCards = [...document.querySelectorAll('[data-gallery-style]')];
 const icons = [...document.querySelectorAll('.desktop-icon')];
-
-const names = {
-  persian: 'Persian',
-  kilim: 'Kilim',
-  'woven-grid': 'Woven Grid',
-  midnight: 'Midnight'
-};
-
+const names = { persian: 'Persian', kilim: 'Kilim', 'woven-grid': 'Woven Grid', midnight: 'Midnight' };
 const state = { x: 0, y: 0, width: 0, height: 0, style: 'persian', peek: false, gathered: false, interacted: false };
-let pointer = null;
+const area = { width: 1, height: 1, icons: [] };
+const lift = new Spring(0, 17, .72);
+const dragX = new Spring(0, 23, .8);
+const dragY = new Spring(0, 23, .8);
+const ripple = new Spring(0, 15, .62);
+const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
+let pointer = null, frame = 0, lastTime = 0, geometryDirty = true, iconsDirty = true;
+let renderer = null, visible = true;
 
-function clamp(value, min, max) {
-  return Math.min(Math.max(value, min), max);
+const canvas = document.createElement('canvas');
+canvas.className = 'cloth-canvas'; canvas.setAttribute('aria-hidden', 'true');
+screen.insertBefore(canvas, rug);
+function availability(available) {
+  screen.classList.toggle('has-cloth-renderer', available);
+  requestFrame();
 }
+try { renderer = new ClothRenderer(canvas, availability); availability(true); }
+catch { availability(false); }
 
-function makeInitialLayout() {
-  const areaWidth = screen.clientWidth;
-  const areaHeight = screen.clientHeight;
-  const width = clamp(areaWidth * (areaWidth < 650 ? .54 : .48), 190, 570);
-  const height = width * .65;
-  state.width = width;
-  state.height = height;
-  state.x = clamp(areaWidth * (areaWidth < 650 ? .32 : .31), 5, areaWidth - width - 5);
-  state.y = clamp(areaHeight * (areaWidth < 650 ? .37 : .27), 12, areaHeight - height - 26);
-  render();
+function requestFrame() {
+  if (!frame && !document.hidden && visible) frame = requestAnimationFrame(animate);
 }
-
-function render() {
-  rug.style.width = `${state.width}px`;
-  rug.style.height = `${state.height}px`;
-  rug.style.transform = `translate3d(${state.x}px, ${state.y}px, 0)`;
-  rug.style.setProperty('--fold', `${state.peek ? Math.min(state.width, state.height) * .46 : 0}px`);
-  rug.classList.toggle('is-peeking', state.peek);
+function animate(now) {
+  frame = 0;
+  const dt = lastTime ? (now - lastTime) / 1000 : 1 / 60;
+  lastTime = now;
+  const active = [lift, dragX, dragY, ripple].map(spring => spring.step(dt, reducedMotion.matches)).some(Boolean);
+  if (geometryDirty) {
+    rug.style.width = `${state.width}px`;
+    rug.style.height = `${state.height}px`;
+    rug.style.transform = `translate3d(${state.x}px, ${state.y}px, 0)`;
+    geometryDirty = false;
+  }
+  if (iconsDirty) { positionIcons(); iconsDirty = false; }
+  const motion = { lift: lift.value, dx: dragX.value, dy: dragY.value, ripple: ripple.value };
+  renderer?.render(state, motion, now / 1000);
+  const corner = sampleCloth(.97, .035, state.width, state.height, lift.value);
+  grip.style.transform = `translate3d(${corner.x + corner.z * .13 - 8}px, ${corner.y - corner.z * .38 - 8}px, 0)`;
+  if (!renderer || renderer.lost) rug.style.setProperty('--fallback-lift', String(lift.value));
+  if (active) requestFrame(); else lastTime = 0;
+}
+function geometryChanged() { geometryDirty = true; iconsDirty = true; requestFrame(); }
+function syncControls() {
   rugImage.src = `/assets/rug-${state.style}.png`;
-  rug.setAttribute('aria-label', `${names[state.style]} carpet. Drag to move. Arrow keys move, Shift and arrow keys resize. ${state.peek ? 'Corner is lifted.' : 'Corner is down.'}`);
+  rug.setAttribute('aria-label', `${names[state.style]} carpet. Drag the body to move, pull the upper right corner to lift and release to settle. Arrow keys move, Shift and arrows resize. ${state.peek ? 'Corner held open.' : 'Corner down.'}`);
   peekButton.setAttribute('aria-pressed', String(state.peek));
   peekButton.innerHTML = `<span class="tool-icon" aria-hidden="true">◪</span> ${state.peek ? 'Lay it down' : 'Lift corner'}`;
   sweepButton.setAttribute('aria-pressed', String(state.gathered));
   sweepButton.innerHTML = `<span class="tool-icon" aria-hidden="true">${state.gathered ? '↖' : '↘'}</span> ${state.gathered ? 'Restore icons' : 'Sweep icons'}`;
   swatches.forEach(button => {
     const active = button.dataset.style === state.style;
-    button.classList.toggle('active', active);
-    button.setAttribute('aria-pressed', String(active));
+    button.classList.toggle('active', active); button.setAttribute('aria-pressed', String(active));
   });
-  positionIcons();
 }
-
 function positionIcons() {
-  const areaWidth = screen.clientWidth;
-  const areaHeight = screen.clientHeight;
   icons.forEach((icon, index) => {
-    if (!state.gathered) {
-      icon.style.setProperty('--dx', '0px');
-      icon.style.setProperty('--dy', '0px');
-      return;
-    }
-    const originalX = areaWidth * parseFloat(icon.style.getPropertyValue('--ix')) / 100;
-    const originalY = areaHeight * parseFloat(icon.style.getPropertyValue('--iy')) / 100;
-    const column = index % 3;
-    const row = Math.floor(index / 3);
-    const targetX = state.x + state.width * (.25 + column * .22) - icon.offsetWidth / 2;
-    const targetY = state.y + state.height * (.31 + row * .32) - icon.offsetHeight / 2;
-    icon.style.setProperty('--dx', `${targetX - originalX}px`);
-    icon.style.setProperty('--dy', `${targetY - originalY}px`);
+    const original = area.icons[index];
+    if (!original) return;
+    const x = state.gathered ? state.x + state.width * (.25 + index % 3 * .22) - original.width / 2 - original.x : 0;
+    const y = state.gathered ? state.y + state.height * (.31 + Math.floor(index / 3) * .32) - original.height / 2 - original.y : 0;
+    icon.style.setProperty('--dx', `${x}px`); icon.style.setProperty('--dy', `${y}px`);
   });
 }
-
-function setStatus(message) {
-  status.textContent = message;
+function measure() {
+  // All layout reads happen together, outside pointermove and animation frames.
+  area.width = Math.max(1, screen.clientWidth); area.height = Math.max(1, screen.clientHeight);
+  area.icons = icons.map(icon => ({
+    width: icon.offsetWidth, height: icon.offsetHeight,
+    x: area.width * parseFloat(icon.style.getPropertyValue('--ix')) / 100,
+    y: area.height * parseFloat(icon.style.getPropertyValue('--iy')) / 100
+  }));
+  renderer?.resize(area.width, area.height);
 }
-
-function chooseStyle(style, announce = true) {
+function maxWidth() { return Math.max(1, Math.min(area.width - state.x, (area.height - state.y - 8) / .65)); }
+function fit() {
+  state.width = clamp(state.width, 1, Math.min(area.width, Math.max(1, (area.height - 8) / .65)));
+  state.height = state.width * .65;
+  state.x = clamp(state.x, 0, area.width - state.width);
+  state.y = clamp(state.y, 0, area.height - state.height - 6);
+}
+function initialLayout() {
+  state.width = Math.min(clamp(area.width * (area.width < 650 ? .54 : .48), 190, 570), area.width, Math.max(1, (area.height - 12) / .65));
+  state.height = state.width * .65;
+  state.x = area.width * (area.width < 650 ? .32 : .31);
+  state.y = area.height * (area.width < 650 ? .37 : .27);
+  fit(); geometryChanged();
+}
+function setStatus(message) { status.textContent = message; }
+function cancelGesture() {
+  if (!pointer) return;
+  const id = pointer.id;
+  pointer = null;
+  if (rug.hasPointerCapture(id)) rug.releasePointerCapture(id);
+  screen.classList.remove('is-dragging');
+  dragX.target = dragY.target = ripple.target = 0;
+  lift.target = state.peek ? .96 : 0;
+  requestFrame();
+}
+function chooseStyle(style) {
   if (!names[style]) return;
-  state.style = style;
-  state.interacted = true;
-  render();
-  if (announce) setStatus(`${names[style]} design selected. Try dragging the carpet.`);
+  state.style = style; state.interacted = true;
+  syncControls(); requestFrame(); setStatus(`${names[style]} design selected. Pull the upper right corner to feel the fabric.`);
 }
-
 function togglePeek() {
-  state.peek = !state.peek;
-  state.interacted = true;
-  render();
-  setStatus(state.peek ? 'Corner lifted. The sample desktop is visible beneath it.' : 'Corner laid flat. The sample icons are covered again.');
+  cancelGesture(); state.peek = !state.peek; state.interacted = true;
+  lift.target = state.peek ? .96 : 0;
+  syncControls(); requestFrame();
+  setStatus(state.peek ? 'Corner held open. Pull and release it to let the fabric settle.' : 'The fabric is settling back onto the desktop.');
 }
-
 function toggleGather() {
-  state.gathered = !state.gathered;
-  state.interacted = true;
-  render();
-  setStatus(state.gathered ? 'Sample icons swept beneath the carpet. Lift a corner to peek.' : 'Sample icons returned to their original positions.');
+  state.gathered = !state.gathered; state.interacted = true;
+  syncControls(); iconsDirty = true; requestFrame();
+  setStatus(state.gathered ? 'Sample icons swept beneath the rug. Lift the upper right corner to peek.' : 'Sample icons restored to their original positions.');
 }
-
 function resetDemo() {
-  state.style = 'persian';
-  state.peek = false;
-  state.gathered = false;
-  state.interacted = false;
-  makeInitialLayout();
-  setStatus('Demo reset. Drag the rug to make the desktop yours.');
+  cancelGesture(); state.style = 'persian'; state.peek = state.gathered = state.interacted = false;
+  [lift, dragX, dragY, ripple].forEach(spring => spring.snap(0));
+  initialLayout(); syncControls(); setStatus('Demo reset. Drag the rug, or pull its upper right corner.');
 }
-
 swatches.forEach(button => button.addEventListener('click', () => chooseStyle(button.dataset.style)));
 galleryCards.forEach(card => card.addEventListener('click', () => {
   chooseStyle(card.dataset.galleryStyle);
-  document.querySelector('#play').scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
+  document.querySelector('#play').scrollIntoView({ behavior: reducedMotion.matches ? 'auto' : 'smooth' });
 }));
 peekButton.addEventListener('click', togglePeek);
 sweepButton.addEventListener('click', toggleGather);
 resetButton.addEventListener('click', resetDemo);
 
 rug.addEventListener('pointerdown', event => {
-  if (event.button !== 0) return;
+  if (pointer || event.button !== 0 || event.isPrimary === false) return;
   const bounds = rug.getBoundingClientRect();
-  const localX = event.clientX - bounds.left;
-  const localY = event.clientY - bounds.top;
-  const nearRight = localX > bounds.width - Math.min(75, bounds.width * .25);
-  const mode = nearRight && localY < Math.min(75, bounds.height * .3) ? 'peek'
-    : nearRight && localY > bounds.height - Math.min(75, bounds.height * .3) ? 'resize'
-      : 'move';
-  pointer = {
-    id: event.pointerId,
-    mode,
-    clientX: event.clientX,
-    clientY: event.clientY,
-    x: state.x,
-    y: state.y,
-    width: state.width,
-    height: state.height,
-    wasPeeking: state.peek,
-    moved: false
-  };
-  rug.setPointerCapture(event.pointerId);
-  event.preventDefault();
+  const x = event.clientX - bounds.left, y = event.clientY - bounds.top;
+  const nearRight = x > state.width - Math.min(75, state.width * .25);
+  const mode = event.target === grip || nearRight && y < Math.min(75, state.height * .3) ? 'peek'
+    : nearRight && y > state.height - Math.min(75, state.height * .3) ? 'resize' : 'move';
+  pointer = { id: event.pointerId, mode, clientX: event.clientX, clientY: event.clientY,
+    x: state.x, y: state.y, width: state.width, lift: lift.value, wasPeeking: state.peek, moved: false, lastX: event.clientX, lastY: event.clientY };
+  rug.setPointerCapture(event.pointerId); rug.focus({ preventScroll: true });
+  if (mode === 'peek') lift.target = Math.max(.12, lift.value);
+  screen.classList.add('is-dragging'); requestFrame(); event.preventDefault();
 });
-
 rug.addEventListener('pointermove', event => {
   if (!pointer || pointer.id !== event.pointerId) return;
-  const dx = event.clientX - pointer.clientX;
-  const dy = event.clientY - pointer.clientY;
+  const dx = event.clientX - pointer.clientX, dy = event.clientY - pointer.clientY;
   if (Math.abs(dx) + Math.abs(dy) > 4) pointer.moved = true;
   if (pointer.mode === 'move') {
-    state.x = clamp(pointer.x + dx, 0, screen.clientWidth - state.width);
-    state.y = clamp(pointer.y + dy, 0, screen.clientHeight - state.height - 6);
+    state.x = clamp(pointer.x + dx, 0, area.width - state.width);
+    state.y = clamp(pointer.y + dy, 0, area.height - state.height - 6);
+    dragX.target = clamp(event.clientX - pointer.lastX, -45, 45);
+    dragY.target = clamp(event.clientY - pointer.lastY, -45, 45);
+    geometryChanged();
   } else if (pointer.mode === 'resize') {
-    const maxWidth = Math.min(screen.clientWidth - state.x, (screen.clientHeight - state.y - 8) / .65);
-    state.width = clamp(pointer.width + dx + dy * .35, Math.min(160, maxWidth), maxWidth);
-    state.height = state.width * .65;
-  } else if (pointer.mode === 'peek') {
-    state.peek = Math.abs(dx) + Math.abs(dy) > 12 ? true : pointer.wasPeeking;
+    state.width = clamp(pointer.width + dx + dy * .35, Math.min(160, maxWidth()), maxWidth());
+    state.height = state.width * .65; geometryChanged();
+  } else {
+    const distance = Math.hypot(dx, dy);
+    lift.target = clamp(pointer.lift + distance / Math.max(65, state.height * .67), .08, 1.06);
+    requestFrame();
   }
+  pointer.lastX = event.clientX; pointer.lastY = event.clientY;
   state.interacted = true;
-  render();
 });
-
 function finishPointer(event) {
   if (!pointer || pointer.id !== event.pointerId) return;
-  if (pointer.mode === 'peek' && !pointer.moved) state.peek = !pointer.wasPeeking;
-  if (pointer.mode === 'peek') setStatus(state.peek ? 'Corner lifted. Take a look underneath.' : 'Corner laid flat again.');
-  else if (pointer.mode === 'resize') setStatus('Carpet resized. A better fit for this desktop.');
-  else if (pointer.moved) setStatus('Carpet moved. Your desktop, your arrangement.');
-  pointer = null;
-  render();
+  if (event.type !== 'pointerup') { cancelGesture(); return; }
+  const ended = pointer;
+  cancelGesture();
+  if (ended.mode === 'peek') {
+    state.peek = ended.moved ? false : !ended.wasPeeking;
+    lift.target = state.peek ? .96 : 0;
+    if (ended.moved && !reducedMotion.matches) { ripple.value = Math.min(1.8, lift.value * 2); ripple.target = 0; }
+    setStatus(state.peek ? 'Corner held open. Click again to lay it down.' : 'Released. The fabric settles back into place.');
+  } else if (ended.mode === 'resize') setStatus('Rug resized to fit this desktop.');
+  else if (ended.moved) setStatus('Rug moved. Your desktop, your arrangement.');
+  syncControls(); requestFrame();
 }
-rug.addEventListener('pointerup', finishPointer);
-rug.addEventListener('pointercancel', finishPointer);
-
+for (const event of ['pointerup', 'pointercancel', 'lostpointercapture']) rug.addEventListener(event, finishPointer);
 rug.addEventListener('keydown', event => {
-  const step = event.altKey ? 2 : 14;
+  if (event.key === 'Escape') { cancelGesture(); state.peek = false; lift.target = 0; syncControls(); requestFrame(); return; }
   if (['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(event.key)) {
-    event.preventDefault();
+    event.preventDefault(); cancelGesture();
+    const step = event.altKey ? 2 : 14;
     const horizontal = event.key === 'ArrowLeft' ? -step : event.key === 'ArrowRight' ? step : 0;
     const vertical = event.key === 'ArrowUp' ? -step : event.key === 'ArrowDown' ? step : 0;
     if (event.shiftKey) {
-      const widthChange = horizontal + vertical;
-      const maxWidth = Math.min(screen.clientWidth - state.x, (screen.clientHeight - state.y - 8) / .65);
-      state.width = clamp(state.width + widthChange, Math.min(160, maxWidth), maxWidth);
-      state.height = state.width * .65;
+      state.width = clamp(state.width + horizontal + vertical, Math.min(160, maxWidth()), maxWidth()); state.height = state.width * .65;
     } else {
-      state.x = clamp(state.x + horizontal, 0, screen.clientWidth - state.width);
-      state.y = clamp(state.y + vertical, 0, screen.clientHeight - state.height - 6);
+      state.x = clamp(state.x + horizontal, 0, area.width - state.width);
+      state.y = clamp(state.y + vertical, 0, area.height - state.height - 6);
     }
-    state.interacted = true;
-    render();
-  } else if (event.key === 'Enter' || event.key === ' ') {
-    event.preventDefault();
-    togglePeek();
-  }
+    state.interacted = true; geometryChanged();
+  } else if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); togglePeek(); }
 });
-
 const resizeObserver = new ResizeObserver(() => {
-  if (!state.interacted) {
-    makeInitialLayout();
-    return;
-  }
-  const maxWidth = Math.min(screen.clientWidth - 4, (screen.clientHeight - 10) / .65);
-  state.width = Math.min(state.width, maxWidth);
-  state.height = state.width * .65;
-  state.x = clamp(state.x, 0, screen.clientWidth - state.width);
-  state.y = clamp(state.y, 0, screen.clientHeight - state.height - 6);
-  render();
+  cancelGesture(); measure();
+  if (!state.interacted) initialLayout(); else { fit(); geometryChanged(); }
 });
 resizeObserver.observe(screen);
-makeInitialLayout();
-
+measure(); initialLayout(); syncControls();
+reducedMotion.addEventListener('change', requestFrame);
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) { cancelGesture(); if (frame) cancelAnimationFrame(frame); frame = 0; lastTime = 0; }
+  else requestFrame();
+});
+window.addEventListener('blur', cancelGesture);
+if ('IntersectionObserver' in window) {
+  new IntersectionObserver(entries => {
+    visible = entries[0].isIntersecting;
+    if (visible) requestFrame(); else { if (frame) cancelAnimationFrame(frame); frame = 0; lastTime = 0; }
+  }, { rootMargin: '100px' }).observe(screen);
+}
 const revealElements = document.querySelectorAll('.reveal');
-if (matchMedia('(prefers-reduced-motion: reduce)').matches || !('IntersectionObserver' in window)) {
-  revealElements.forEach(element => element.classList.add('is-visible'));
-} else {
+if (reducedMotion.matches || !('IntersectionObserver' in window)) revealElements.forEach(element => element.classList.add('is-visible'));
+else {
   const observer = new IntersectionObserver(entries => {
-    for (const entry of entries) {
-      if (entry.isIntersecting) {
-        entry.target.classList.add('is-visible');
-        observer.unobserve(entry.target);
-      }
-    }
+    for (const entry of entries) if (entry.isIntersecting) { entry.target.classList.add('is-visible'); observer.unobserve(entry.target); }
   }, { threshold: .12, rootMargin: '0px 0px 30px 0px' });
   revealElements.forEach(element => observer.observe(element));
 }

@@ -96,17 +96,19 @@ button:focus-visible, a:focus-visible, [tabindex]:focus-visible { outline: 3px s
 .icon-photo span { position: absolute; width: 40px; height: 30px; transform: rotate(42deg); background: #5e8570; left: -15px; bottom: -20px; }
 .icon-photo-blue { background: linear-gradient(180deg,#a7c8d0 0 47%,#728fa4 48% 100%); }
 .icon-photo-blue span { background: #597a86; }
-.demo-rug { position: absolute; z-index: 3; left: 0; top: 0; transform: translate3d(0,0,0); cursor: grab; touch-action: none; user-select: none; -webkit-user-select: none; filter: drop-shadow(0 19px 13px rgba(44,47,38,.28)) drop-shadow(0 5px 4px rgba(44,47,38,.16)); transition: filter .2s ease; }
+/* The canvas owns the material; this transparent hit target keeps keyboard/touch access. */
+.cloth-canvas { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 3; pointer-events: none; }
+.demo-rug { position: absolute; z-index: 4; left: 0; top: 0; cursor: grab; touch-action: none; user-select: none; -webkit-user-select: none; }
 .demo-rug:active { cursor: grabbing; }
-.demo-rug:hover { filter: drop-shadow(0 24px 18px rgba(44,47,38,.32)) drop-shadow(0 6px 5px rgba(44,47,38,.15)); }
-.rug-face { position: absolute; inset: 0; clip-path: polygon(0 0, calc(100% - var(--fold, 0px)) 0, 100% var(--fold, 0px), 100% 100%, 0 100%); }
-.rug-face img { display: block; width: 100%; height: 100%; object-fit: fill; pointer-events: none; }
-.rug-fold { display: none; position: absolute; top: 0; right: 0; width: var(--fold, 0px); height: var(--fold, 0px); clip-path: polygon(0 0, 100% 100%, 32% 63%); background: linear-gradient(125deg,#eee0c0,#c1a983 60%,#e4d5b4); filter: drop-shadow(-3px 4px 4px rgba(0,0,0,.16)); pointer-events: none; }
-.demo-rug.is-peeking .rug-fold { display: block; }
-.rug-grip { position: absolute; z-index: 2; width: 16px; height: 16px; border: 1px solid rgba(255,255,255,.75); background: rgba(255,255,255,.45); box-shadow: 0 1px 4px rgba(0,0,0,.16); border-radius: 50%; opacity: 0; transition: opacity .2s ease; }
-.demo-rug:hover .rug-grip, .demo-rug:focus-visible .rug-grip { opacity: 1; }
-.rug-grip-peek { right: 18px; top: 18px; cursor: nwse-resize; }
-.rug-grip-resize { right: 18px; bottom: 18px; cursor: nwse-resize; }
+.rug-face { position: absolute; inset: 0; transform-origin: bottom left; transform: perspective(800px) rotateX(calc(var(--fallback-lift, 0) * 38deg)) rotateY(calc(var(--fallback-lift, 0) * -20deg)); filter: drop-shadow(4px 12px 9px rgba(30, 35, 28, .27)); }
+.rug-face img { display: block; width: 100%; height: 100%; pointer-events: none; }
+.has-cloth-renderer .rug-face { visibility: hidden; }
+.rug-grip { position: absolute; width: 16px; height: 16px; border: 1px solid rgba(255,255,255,.85); background: rgba(255,255,255,.32); box-shadow: 0 1px 4px rgba(0,0,0,.22); border-radius: 50%; opacity: 0; transition: opacity .2s ease; }
+.demo-rug:hover .rug-grip, .demo-rug:focus-visible .rug-grip, .is-dragging .rug-grip { opacity: 1; }
+.rug-grip-peek { left: 0; top: 0; cursor: grab; }
+.rug-grip-resize { right: 8px; bottom: 8px; cursor: nwse-resize; }
+.is-dragging .desktop-icon { transition: none; }
+@media (hover: none) { .rug-grip { opacity: .7; width: 20px; height: 20px; } }
 .demo-dock { position: absolute; z-index: 5; left: 50%; bottom: 10px; transform: translateX(-50%); display: flex; align-items: center; gap: 8px; padding: 8px 10px; border: 1px solid rgba(255,255,255,.52); border-radius: 14px; background: rgba(246,250,248,.48); box-shadow: 0 7px 24px rgba(40,68,63,.18), inset 0 1px 0 rgba(255,255,255,.4); backdrop-filter: blur(14px); }
 .dock-dot { display: block; width: 22px; height: 22px; border-radius: 6px; box-shadow: inset 0 1px 2px rgba(255,255,255,.48); }
 .dock-sand { background: linear-gradient(140deg,#e4cb9e,#bd9272); }.dock-sky { background: linear-gradient(140deg,#aecfd2,#719da8); }.dock-wine { background: linear-gradient(140deg,#c6807d,#8c3b49); }.dock-white { background: linear-gradient(140deg,#fff,#c4d6ce); }

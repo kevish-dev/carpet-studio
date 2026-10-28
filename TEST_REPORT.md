@@ -1,21 +1,20 @@
-# Carpet Studio test report
+# Carpet Studio 0.3.0 motion verification
+
+The Mac app and browser demo now render a curved rug mesh with a patterned face, woven backing, bound edge and moving fringe. Pulling the upper-right corner continuously controls the curl. Releasing a drag lets a damped spring lay it down. Space/Return or the browser Lift Corner button holds it open. Both honor reduced motion.
 
 ## Passed
 
-- The macOS app bundle builds with Swift and has a valid ad-hoc signature.
-- The app launched and its process remained running.
-- A 1080 × 720 offscreen preview rendered the carpet.
-- `./test.sh` passed checks for icon positions within the carpet and display, unique positions, rejection of an overfull layout, layout backup serialization, generated Finder AppleScript compilation, and distinct rendering of all four built-in styles.
-- `Info.plist` passed validation, and the app ZIP passed archive integrity testing.
-- The 0.2.0 app built as a universal `arm64` and `x86_64` binary targeting macOS 12 or later.
-- The DMG checksum passed, and a read-only mount contained `Carpet Studio.app`, an `/Applications` shortcut, and installation instructions.
-- The app's signature contains the Apple Events entitlement. Gatekeeper rejected the ad-hoc preview, as expected without a Developer ID signature and notarization.
-- All build, test, DMG, and release scripts passed shell syntax checks. The public-release script correctly refused a missing Developer ID identity before any upload.
+- Native app builds for arm64 and x86_64, macOS 12+. Info.plist is valid and the ad-hoc app signature verifies.
+- Native mesh/normals are finite through 21 lift amounts; underside normals face the viewer at full curl; release spring settles.
+- Native offscreen GPU snapshots of flat, half-lift and curled states inspected. All four styles render distinctly.
+- Existing Finder layout boundary, uniqueness, crowded-desktop, backup serialization and AppleScript compilation checks pass. Finder icon positions were not changed in testing.
+- Website: 21 Node tests pass. Coverage includes continuous bending, fabric length preservation, 5,000 randomized samples, 30/60/120 Hz spring stability, GPU buffer/texture lifecycle mocks, shader shared-uniform precision, pointer cancellation, multiple pointers, resize, reset, keyboard, reduced motion and WebGL fallback.
+- Website input instrumentation: 100 pointermove events schedule one frame and make zero layout reads or DOM writes before that frame. Texture, markup and ARIA updates are kept outside pointermove.
+- Native mesh topology/materials and web GPU buffers/textures are cached. Settled animation loops stop; the website pauses offscreen/in hidden tabs.
+- Universal DMG checksum verification passed.
 
-## Pending live checks
+## Verification limits
 
-- Dragging, resizing, peeking, and menu selection on the actual desktop.
-- Gathering Finder desktop icons and restoring their exact prior positions.
-- Behavior when Finder Stacks or automatic sorting is enabled.
+Browser shader execution and live frame rate have not been measured. Browser control for the local origin and computer control for Carpet Studio were not approved earlier, so no alternate UI automation was used. Native visual checks use offscreen SceneKit rendering, not live desktop interaction. Drag/resize/menu handling and Finder Gather/Restore still need a manual desktop check.
 
-Codex computer control was not approved to access Carpet Studio, so those live UI checks could not be completed in this run. The current desktop icon layout was not changed during these tests. The app remains a development build until these interactions are verified.
+This is a development preview. It is ad-hoc signed, not Developer ID signed or notarized.

@@ -13,7 +13,7 @@
   <link rel="icon" type="image/png" href="/assets/app-icon.png">
   <link rel="preload" as="image" href="/assets/rug-persian.png">
   <link rel="stylesheet" href="/styles.css">
-  <script src="/app.js" defer></script>
+  <script src="/app.js" type="module"></script>
 </head>
 <body>
   <a class="skip-link" href="#main">Skip to content</a>
@@ -58,7 +58,7 @@
           <p class="eyebrow">INTERACTIVE PREVIEW</p>
           <h2 id="demo-heading">Go ahead.<br><span class="muted-word">Move things around.</span></h2>
         </div>
-        <p>Drag the carpet. Lift its corner. Sweep the sample files beneath it. This little desktop is yours to play with.</p>
+        <p>Drag the rug. Pull its upper right corner and let go. Watch the fabric curl, then settle over your sample files.</p>
       </div>
 
       <div class="desktop-shell reveal" aria-label="Interactive Carpet Studio browser demo">
@@ -78,12 +78,11 @@
 
           <div class="demo-rug" id="demo-rug" tabindex="0" role="button" aria-keyshortcuts="ArrowUp ArrowDown ArrowLeft ArrowRight Enter Space" aria-label="Carpet. Drag to move. Use arrow keys to move, or Shift and arrow keys to resize.">
             <div class="rug-face" id="rug-face"><img id="rug-image" src="/assets/rug-persian.png" alt="" draggable="false"></div>
-            <div class="rug-fold" aria-hidden="true"></div>
             <span class="rug-grip rug-grip-peek" aria-hidden="true"></span>
             <span class="rug-grip rug-grip-resize" aria-hidden="true"></span>
           </div>
           <div class="demo-dock" aria-hidden="true"><span class="dock-dot dock-sand"></span><span class="dock-dot dock-sky"></span><span class="dock-dot dock-wine"></span><span class="dock-divider"></span><span class="dock-dot dock-white"></span></div>
-          <span class="desktop-hint" id="desktop-hint">DRAG THE RUG</span>
+          <span class="desktop-hint" id="desktop-hint">DRAG · PULL THE CORNER · RELEASE</span>
         </div>
       </div>
 
@@ -146,8 +145,8 @@
         <p class="eyebrow">TAKE THE CALM WITH YOU</p>
         <h2>Give your desktop<br>a place to <span class="italic-word">rest.</span></h2>
         <p class="download-description">A tiny change to the space you see every day.</p>
-        <a class="button button-light" href="/downloads/Carpet-Studio-0.2.0-preview.dmg" download>Download preview for Mac <span aria-hidden="true">↗</span></a>
-        <div class="download-meta"><span>Version 0.2.0 preview</span><span>macOS 12 or later</span><span>Apple silicon & Intel</span></div>
+        <a class="button button-light" href="/downloads/Carpet-Studio-0.3.0-preview.dmg" download>Download preview for Mac <span aria-hidden="true">↗</span></a>
+        <div class="download-meta"><span>Version 0.3.0 preview</span><span>macOS 12 or later</span><span>Apple silicon & Intel</span></div>
         <p class="download-note">This is a development preview. It is not Developer ID signed or notarized, so macOS Gatekeeper may block it on other Macs.</p>
         <div class="download-art" aria-hidden="true"><img src="/assets/rug-persian.png" alt="" loading="lazy"></div>
       </div>

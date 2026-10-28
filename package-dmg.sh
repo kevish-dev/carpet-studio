@@ -2,7 +2,7 @@
 set -euo pipefail
 cd "${0:A:h}"
 APP="build/Carpet Studio.app"
-OUTPUT="${1:-dist/Carpet-Studio-0.2.0-macOS.dmg}"
+OUTPUT="${1:-dist/Carpet-Studio-0.3.0-macOS.dmg}"
 [[ -d "$APP" ]] || { echo "Build the app first with ./build.sh" >&2; exit 1; }
 codesign --verify --deep --strict "$APP"
 mkdir -p "${OUTPUT:h}"

@@ -14,7 +14,7 @@ security find-identity -v -p codesigning | grep -Fq "$CARPET_SIGN_IDENTITY" || {
 }
 
 ./build.sh
-DMG="dist/Carpet-Studio-0.2.0-macOS.dmg"
+DMG="dist/Carpet-Studio-0.3.0-macOS.dmg"
 ./package-dmg.sh "$DMG"
 codesign --force --sign "$CARPET_SIGN_IDENTITY" --timestamp "$DMG"
 RESPONSE="dist/notarization-response.json"

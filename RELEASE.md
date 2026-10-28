@@ -14,7 +14,7 @@ The project produces a universal macOS 12+ app and a drag-to-Applications DMG. T
 
 Set `CARPET_SIGN_IDENTITY` to the full Developer ID Application certificate name and `CARPET_NOTARY_PROFILE` to the stored Keychain profile name. Then run `./release.sh` from this folder. The script checks the certificate, builds both CPU architectures, signs with hardened runtime and the Finder Automation entitlement, creates and signs the DMG, submits it to Apple, staples the notarization ticket, and runs local verification.
 
-The result is `dist/Carpet-Studio-0.2.0-macOS.dmg`. Publish that file only after the script succeeds and the live validation above passes.
+The result is `dist/Carpet-Studio-0.3.0-macOS.dmg`. Publish that file only after the script succeeds and the live validation above passes.
 
 ## Installer experience
 
